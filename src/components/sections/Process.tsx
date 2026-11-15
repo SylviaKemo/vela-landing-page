@@ -1,49 +1,6 @@
 import { CtaButton } from "@/components/ui/Button";
-import { Placeholder, type PlaceholderTone } from "@/components/ui/Placeholder";
-import { BodyText, Caption, Container, DisplayHeading, Eyebrow } from "@/components/ui/Typography";
-
-const stages: { step: string; tone: PlaceholderTone; image: string; text: string }[] = [
-  {
-    step: "01 — Dress",
-    tone: "warm",
-    image: "Image · Stage 01: your gown as worn, on warm backdrop.",
-    text: "Your gown is recorded as it was worn.",
-  },
-  {
-    step: "02 — Data",
-    tone: "dark",
-    image: "Image · Stage 02: grey-scale 3D capture of the gown, wireframe or render.",
-    text: "Every fold and surface is translated into a model.",
-  },
-  {
-    step: "03 — Sculpture",
-    tone: "sand",
-    image: "Image · Stage 03: finished sculpture on plinth.",
-    text: "Hand-finished into a lasting piece of art.",
-  },
-];
-
-export function Stages() {
-  return (
-    <section id="process" className="bg-ink py-24 text-ivory md:py-[140px]">
-      <Container>
-        <Eyebrow className="text-mist">the process, in three stages</Eyebrow>
-        <DisplayHeading compact>
-          From dress, <em>to</em> data, <em>to</em> sculpture.
-        </DisplayHeading>
-        <ol className="m-0 mt-20 grid list-none grid-cols-1 gap-12 p-0 md:grid-cols-3 md:gap-6">
-          {stages.map((stage) => (
-            <li key={stage.step}>
-              <Placeholder tone={stage.tone} className="h-[460px]" label={stage.image} />
-              <Caption className="mt-6 text-mist">{stage.step}</Caption>
-              <p className="m-0 font-serif text-[22px]">{stage.text}</p>
-            </li>
-          ))}
-        </ol>
-      </Container>
-    </section>
-  );
-}
+import { Placeholder } from "@/components/ui/Placeholder";
+import { BodyText, Container, DisplayHeading, Eyebrow } from "@/components/ui/Typography";
 
 export function ProcessGrid() {
   return (

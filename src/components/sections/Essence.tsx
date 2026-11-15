@@ -1,0 +1,180 @@
+"use client";
+
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import Image from "next/image";
+import { useRef } from "react";
+
+gsap.registerPlugin(ScrollTrigger, useGSAP);
+
+const PANELS = [
+  { src: "/images/2.avif", alt: "Bride in a strapless gown standing on a plinth against a warm amber backdrop" },
+  { src: "/images/5.avif", alt: "White resin sculpture of the gown on a stone plinth against a grey backdrop" },
+  { src: "/images/6.avif", alt: "Bride seen from behind beside the miniature sculpture of her dress" },
+];
+
+const PHRASES = [
+  { lead: "From", word: "Dress," },
+  { lead: "to", word: "Data," },
+  { lead: "to", word: "Sculpture." },
+];
+
+/**
+ * "The essence of VERO". The section pins; the small image under the heading
+ * grows to fill the screen, then three full-screen images slide sideways while
+ * "From DRESS, to DATA, to SCULPTURE." drifts along and lights up phrase by
+ * phrase. Sizes measured from the reference: ~12px label, ~83px (4.37vw)
+ * heading, ~60px (4.4vw) caption at a 1376px-wide window.
+ */
+export function Essence() {
+  const root = useRef<HTMLElement>(null);
+
+  useGSAP(
+    () => {
+      const q = gsap.utils.selector(root);
+      const mm = gsap.matchMedia();
+
+      mm.add("(prefers-reduced-motion: no-preference)", () => {
+        const pin = q("[data-essence-pin]")[0] as HTMLElement;
+        const slot = q("[data-essence-slot]")[0] as HTMLElement;
+        const grow = q("[data-essence-grow]")[0] as HTMLElement;
+        const phrases = q("[data-phrase]");
+        const dots = q("[data-dot]");
+
+        // Starting box = the slot under the heading, in the pinned frame's coordinates.
+        const from = () => {
+          const p = pin.getBoundingClientRect();
+          const s = slot.getBoundingClientRect();
+          return { left: s.left - p.left, top: s.top - p.top, width: s.width, height: s.height };
+        };
+        gsap.set(grow, { ...from() });
+        gsap.set(q("[data-caption]"), { yPercent: 120 });
+        gsap.set(phrases.slice(1), { opacity: 0.42 });
+        gsap.set(dots.slice(1), { opacity: 0.4 });
+
+        const tl = gsap.timeline({
+          defaults: { ease: "none" },
+          scrollTrigger: {
+            trigger: pin,
+            start: "top top",
+            end: "+=320%",
+            pin: true,
+            scrub: 0.6,
+            invalidateOnRefresh: true,
+          },
+        });
+
+        // 1. The small image grows to fill the screen.
+        tl.fromTo(
+          grow,
+          { left: () => from().left, top: () => from().top, width: () => from().width, height: () => from().height },
+          { left: 0, top: 0, width: () => pin.clientWidth, height: () => pin.clientHeight, ease: "power2.inOut", duration: 1 },
+        )
+          .to(q("[data-caption]"), { yPercent: 0, ease: "power2.out", duration: 0.35 }, 0.75)
+          .to(q("[data-dots]"), { autoAlpha: 1, duration: 0.2 }, 0.8);
+
+        // 2. Three full-screen panels slide left; the caption drifts more slowly.
+        tl.to(q("[data-track]"), { xPercent: -200, ease: "power1.inOut", duration: 2 }, 1.1).fromTo(
+          q("[data-caption-line]"),
+          { x: () => window.innerWidth * 0.37 },
+          { x: () => -window.innerWidth * 0.05, duration: 2 },
+          1.1,
+        );
+
+        // 3. Active phrase and dot follow the panel in view.
+        [1, 2].forEach((i) => {
+          const at = 1.1 + (i - 0.5) * 1; // halfway through each slide
+          tl.to(phrases[i - 1], { opacity: 0.42, duration: 0.25 }, at - 0.125)
+            .to(phrases[i], { opacity: 1, duration: 0.25 }, at - 0.125)
+            .to(dots[i - 1], { opacity: 0.4, duration: 0.25 }, at - 0.125)
+            .to(dots[i], { opacity: 1, duration: 0.25 }, at - 0.125);
+        });
+        tl.to({}, { duration: 0.25 }); // brief hold on the last panel before the section scrolls on
+      });
+
+      // Reduced motion: no pin; images stack as full-width figures.
+      mm.add("(prefers-reduced-motion: reduce)", () => {
+        root.current?.setAttribute("data-static", "true");
+        return () => root.current?.removeAttribute("data-static");
+      });
+    },
+    { scope: root },
+  );
+
+  return (
+    <section ref={root} id="process" aria-labelledby="essence-title" className="group/essence relative bg-ivory">
+      <div
+        data-essence-pin
+        className="relative h-screen min-h-[560px] overflow-hidden group-data-[static=true]/essence:h-auto group-data-[static=true]/essence:overflow-visible"
+      >
+        {/* Heading */}
+        <div className="flex h-full flex-col items-center justify-center px-4 pb-[6vh] text-center group-data-[static=true]/essence:h-auto group-data-[static=true]/essence:py-24">
+          <p className="mb-[18px] mt-0 font-serif text-[12px] uppercase tracking-[0.02em] text-ink [&_em]:normal-case">
+            <em>the</em> Essence <em>of</em> VERO
+          </p>
+          <h2
+            id="essence-title"
+            className="m-0 font-serif text-[clamp(34px,4.37vw,104px)] font-medium uppercase leading-[1.08] [&_em]:normal-case"
+          >
+            <em>where</em> innovation
+            <br />
+            <em>meets</em> craftsmanship
+          </h2>
+          {/* Where the first image starts before it grows */}
+          <div data-essence-slot aria-hidden="true" className="mt-3 h-[clamp(96px,10vw,150px)] w-[clamp(104px,10.6vw,160px)] group-data-[static=true]/essence:hidden" />
+        </div>
+
+        {/* Sliding track: panel 1 grows from the slot, panels 2 and 3 wait off to the right */}
+        <div
+          data-track
+          className="pointer-events-none absolute inset-0 group-data-[static=true]/essence:pointer-events-auto group-data-[static=true]/essence:relative group-data-[static=true]/essence:flex group-data-[static=true]/essence:flex-col group-data-[static=true]/essence:gap-4"
+        >
+          <figure
+            data-essence-grow
+            className="absolute m-0 overflow-hidden group-data-[static=true]/essence:relative group-data-[static=true]/essence:aspect-[16/10] group-data-[static=true]/essence:w-full"
+          >
+            <Image src={PANELS[0].src} alt={PANELS[0].alt} fill sizes="100vw" unoptimized className="object-cover" />
+          </figure>
+          {PANELS.slice(1).map((panel, i) => (
+            <figure
+              key={panel.src}
+              className="absolute top-0 m-0 h-full w-full overflow-hidden group-data-[static=true]/essence:relative group-data-[static=true]/essence:left-0 group-data-[static=true]/essence:aspect-[16/10]"
+              style={{ left: `${(i + 1) * 100}%` }}
+            >
+              <Image src={panel.src} alt={panel.alt} fill sizes="100vw" unoptimized className="object-cover" />
+            </figure>
+          ))}
+        </div>
+
+        {/* Progress dots */}
+        <div
+          data-dots
+          aria-hidden="true"
+          className="invisible absolute left-[42px] top-[56%] flex flex-col gap-[9px] opacity-0 group-data-[static=true]/essence:hidden"
+        >
+          {PANELS.map((p) => (
+            <span key={p.src} data-dot className="block size-[5px] rounded-full bg-paper" />
+          ))}
+        </div>
+
+        {/* Caption */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-[34px] overflow-hidden pb-[0.12em] group-data-[static=true]/essence:hidden">
+          <p data-caption className="m-0">
+            <span
+              data-caption-line
+              className="inline-block whitespace-nowrap font-serif text-[clamp(28px,4.4vw,84px)] font-normal uppercase leading-none text-paper [&_em]:normal-case"
+            >
+              {PHRASES.map((phrase, i) => (
+                <span key={i} data-phrase>
+                  <em>{phrase.lead}</em> {phrase.word}
+                  {i < PHRASES.length - 1 ? " " : ""}
+                </span>
+              ))}
+            </span>
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}

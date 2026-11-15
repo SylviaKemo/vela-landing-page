@@ -8,11 +8,10 @@ export function Eyebrow({ children, className = "" }: Props) {
 }
 
 /** Large uppercase serif display heading; <em> runs drop to italic lower-case. */
-export function DisplayHeading({ children, className = "", compact = false }: Props & { compact?: boolean }) {
-  const size = compact ? "text-[clamp(40px,5vw,72px)]" : "text-[clamp(44px,6vw,88px)]";
+export function DisplayHeading({ children, className = "" }: Props) {
   return (
     <h2
-      className={`m-0 font-serif ${size} font-normal uppercase leading-[1.02] tracking-[0.01em] [&_em]:normal-case ${className}`}
+      className={`m-0 font-serif text-[clamp(44px,6vw,88px)] font-normal uppercase leading-[1.02] tracking-[0.01em] [&_em]:normal-case ${className}`}
     >
       {children}
     </h2>

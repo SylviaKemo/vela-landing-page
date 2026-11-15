@@ -5,8 +5,8 @@ import { Header } from "@/components/sections/Header";
 import { DressStory } from "@/components/sections/DressStory";
 import { Hero } from "@/components/sections/Hero";
 import { HeroTitle } from "@/components/sections/HeroTitle";
-import { Essence } from "@/components/sections/Intro";
-import { ProcessGrid, Stages, WornOnce } from "@/components/sections/Process";
+import { Essence } from "@/components/sections/Essence";
+import { ProcessGrid, WornOnce } from "@/components/sections/Process";
 import {
   ClosingCta,
   Footer,
@@ -28,7 +28,6 @@ export default function Home() {
           <Hero />
           <DressStory />
           <Essence />
-          <Stages />
           <ProcessGrid />
           <WornOnce />
           <FounderQuote />
