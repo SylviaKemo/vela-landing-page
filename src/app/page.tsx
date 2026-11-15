@@ -7,13 +7,7 @@ import { Hero } from "@/components/sections/Hero";
 import { HeroTitle } from "@/components/sections/HeroTitle";
 import { Essence } from "@/components/sections/Essence";
 import { ProcessStory } from "@/components/sections/Process";
-import {
-  ClosingCta,
-  Footer,
-  Gallery,
-  Masterpiece,
-  MedallionQuote,
-} from "@/components/sections/Closing";
+import { Footer } from "@/components/sections/Footer";
 
 export default function Home() {
   return (
@@ -28,10 +22,6 @@ export default function Home() {
           <DressStory />
           <Essence />
           <ProcessStory />
-          <Masterpiece />
-          <Gallery />
-          <MedallionQuote />
-          <ClosingCta />
         </main>
         <Footer />
       </div>

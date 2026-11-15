@@ -4,7 +4,7 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Image from "next/image";
-import { useRef } from "react";
+import { Fragment, useRef } from "react";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
@@ -53,14 +53,27 @@ export function Essence() {
         gsap.set(phrases.slice(1), { opacity: 0.42 });
         gsap.set(dots.slice(1), { opacity: 0.4 });
 
+        // Heading: label fades up, then each line rises out of its mask as the section scrolls in.
+        gsap
+          .timeline({
+            scrollTrigger: { trigger: pin, start: "top 85%", end: "top 15%", scrub: 0.6 },
+          })
+          .fromTo(q("[data-essence-label]"), { y: 16, autoAlpha: 0 }, { y: 0, autoAlpha: 1, ease: "power2.out", duration: 0.5 }, 0)
+          .fromTo(
+            q("[data-essence-line]"),
+            { yPercent: 110 },
+            { yPercent: 0, ease: "power3.out", stagger: 0.18, duration: 0.7 },
+            0.1,
+          );
+
         const tl = gsap.timeline({
           defaults: { ease: "none" },
           scrollTrigger: {
             trigger: pin,
             start: "top top",
-            end: "+=320%",
+            end: "+=600%",
             pin: true,
-            scrub: 0.6,
+            scrub: 0.8,
             invalidateOnRefresh: true,
           },
         });
@@ -74,23 +87,34 @@ export function Essence() {
           .to(q("[data-caption]"), { yPercent: 0, ease: "power2.out", duration: 0.35 }, 0.75)
           .to(q("[data-dots]"), { autoAlpha: 1, duration: 0.2 }, 0.8);
 
-        // 2. Three full-screen panels slide left; the caption drifts more slowly.
-        tl.to(q("[data-track]"), { xPercent: -200, ease: "power1.inOut", duration: 2 }, 1.1).fromTo(
-          q("[data-caption-line]"),
-          { x: () => window.innerWidth * 0.37 },
-          { x: () => -window.innerWidth * 0.05, duration: 2 },
-          1.1,
-        );
+        // 2. Slide panel by panel, resting on each image before moving on.
+        //    Timeline: grow 0–1 · hold 1–1.8 · slide 1.8–3 · hold 3–3.8 · slide 3.8–5 · hold 5–5.8
+        const HOLD = 0.8;
+        const SLIDE = 1.2;
+        const captionX = [0.37, 0.16, -0.05]; // caption drift (share of viewport width) per panel
+        gsap.set(q("[data-caption-line]"), { x: () => window.innerWidth * captionX[0] });
 
-        // 3. Active phrase and dot follow the panel in view.
         [1, 2].forEach((i) => {
-          const at = 1.1 + (i - 0.5) * 1; // halfway through each slide
-          tl.to(phrases[i - 1], { opacity: 0.42, duration: 0.25 }, at - 0.125)
-            .to(phrases[i], { opacity: 1, duration: 0.25 }, at - 0.125)
-            .to(dots[i - 1], { opacity: 0.4, duration: 0.25 }, at - 0.125)
-            .to(dots[i], { opacity: 1, duration: 0.25 }, at - 0.125);
+          const start = 1 + HOLD + (i - 1) * (SLIDE + HOLD);
+          tl.to(q("[data-track]"), { xPercent: -100 * i, ease: "power2.inOut", duration: SLIDE }, start)
+            .to(
+              q("[data-caption-line]"),
+              { x: () => window.innerWidth * captionX[i], ease: "power2.inOut", duration: SLIDE },
+              start,
+            )
+            // Hand the highlight over halfway through the slide: the old phrase dims,
+            // the new one lifts into place and brightens.
+            .to(phrases[i - 1], { opacity: 0.42, y: 0, ease: "power1.out", duration: 0.35 }, start + SLIDE * 0.35)
+            .fromTo(
+              phrases[i],
+              { opacity: 0.42, y: "0.18em" },
+              { opacity: 1, y: 0, ease: "power2.out", duration: 0.45 },
+              start + SLIDE * 0.4,
+            )
+            .to(dots[i - 1], { opacity: 0.4, duration: 0.3 }, start + SLIDE * 0.4)
+            .to(dots[i], { opacity: 1, duration: 0.3 }, start + SLIDE * 0.4);
         });
-        tl.to({}, { duration: 0.25 }); // brief hold on the last panel before the section scrolls on
+        tl.to({}, { duration: HOLD }); // rest on the last image before the section scrolls on
       });
 
       // Reduced motion: no pin; images stack as full-width figures.
@@ -109,17 +133,27 @@ export function Essence() {
         className="relative h-screen min-h-[560px] overflow-hidden group-data-[static=true]/essence:h-auto group-data-[static=true]/essence:overflow-visible"
       >
         {/* Heading */}
-        <div className="flex h-full flex-col items-center justify-center px-4 pb-[6vh] text-center group-data-[static=true]/essence:h-auto group-data-[static=true]/essence:py-24">
-          <p className="mb-[18px] mt-0 font-serif text-[12px] uppercase tracking-[0.02em] text-ink [&_em]:normal-case">
+        <div className="flex h-full flex-col items-center justify-start px-4 pt-[11vh] text-center md:justify-center md:pb-[6vh] md:pt-0 group-data-[static=true]/essence:h-auto group-data-[static=true]/essence:py-24">
+          <p
+            data-essence-label
+            className="mb-[18px] mt-0 font-serif text-[12px] uppercase tracking-[0.02em] text-ink [&_em]:normal-case"
+          >
             <em>the</em> Essence <em>of</em> VERO
           </p>
           <h2
             id="essence-title"
             className="m-0 font-serif text-[clamp(34px,4.37vw,104px)] font-medium uppercase leading-[1.08] [&_em]:normal-case"
           >
-            <em>where</em> innovation
-            <br />
-            <em>meets</em> craftsmanship
+            <span className="block overflow-hidden pb-[0.06em]">
+              <span data-essence-line className="inline-block">
+                <em>where</em> innovation
+              </span>
+            </span>
+            <span className="block overflow-hidden pb-[0.06em]">
+              <span data-essence-line className="inline-block">
+                <em>meets</em> craftsmanship
+              </span>
+            </span>
           </h2>
           {/* Where the first image starts before it grows */}
           <div data-essence-slot aria-hidden="true" className="mt-3 h-[clamp(96px,10vw,150px)] w-[clamp(104px,10.6vw,160px)] group-data-[static=true]/essence:hidden" />
@@ -166,10 +200,12 @@ export function Essence() {
               className="inline-block whitespace-nowrap font-serif text-[clamp(28px,4.4vw,84px)] font-normal uppercase leading-none text-paper [&_em]:normal-case"
             >
               {PHRASES.map((phrase, i) => (
-                <span key={i} data-phrase>
-                  <em>{phrase.lead}</em> {phrase.word}
+                <Fragment key={i}>
+                  <span data-phrase className="inline-block">
+                    <em>{phrase.lead}</em> {phrase.word}
+                  </span>
                   {i < PHRASES.length - 1 ? " " : ""}
-                </span>
+                </Fragment>
               ))}
             </span>
           </p>

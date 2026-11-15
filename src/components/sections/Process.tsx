@@ -3,11 +3,12 @@
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { SplitText } from "gsap/SplitText";
 import Image from "next/image";
 import { useRef } from "react";
 import { NavButton } from "@/components/ui/Button";
 
-gsap.registerPlugin(ScrollTrigger, useGSAP);
+gsap.registerPlugin(ScrollTrigger, SplitText, useGSAP);
 
 type Img = { src: string; alt: string };
 
@@ -21,10 +22,18 @@ const IMG = {
 } satisfies Record<string, Img>;
 
 /** One quarter-width image tile (8:11, as in the reference). */
-function Tile({ img }: { img: Img }) {
+function Tile({ img, lag = 0 }: { img: Img; lag?: number }) {
   return (
-    <figure className="relative m-0 aspect-[8/11] overflow-hidden">
-      <Image src={img.src} alt={img.alt} fill sizes="(min-width: 768px) 25vw, 50vw" unoptimized className="object-cover" />
+    <figure data-clip data-clip-lag={lag} className="relative m-0 aspect-[8/11] overflow-hidden">
+      <Image
+        src={img.src}
+        alt={img.alt}
+        fill
+        sizes="(min-width: 768px) 25vw, 50vw"
+        unoptimized
+        data-clip-img
+        className="object-cover"
+      />
     </figure>
   );
 }
@@ -55,19 +64,46 @@ export function ProcessStory() {
             scrollTrigger: { trigger: q("[data-process-heading]")[0], start: "top 85%", end: "top 40%", scrub: 0.6 },
           },
         );
-        // Right-column blocks ease up as they enter.
-        q("[data-reveal]").forEach((el) => {
+        // Text: each line rises out of its own mask, one after another, as the block scrolls in.
+        q("[data-split]").forEach((el) => {
+          SplitText.create(el, {
+            type: "lines",
+            mask: "lines",
+            autoSplit: true,
+            onSplit: (self) =>
+              gsap.from(self.lines, {
+                yPercent: 110,
+                ease: "power3.out",
+                stagger: 0.12,
+                scrollTrigger: { trigger: el, start: "top 88%", end: "bottom 62%", scrub: 0.6 },
+              }),
+          });
+        });
+
+        // Images: open out from a smaller box to fill their slot while the photo settles from a slight zoom.
+        // The second image of a pair (lag) starts a beat later.
+        q("[data-clip]").forEach((el) => {
+          const lag = Number(el.getAttribute("data-clip-lag") ?? 0);
+          const st = { trigger: el, start: `top ${96 - lag}%`, end: `top ${58 - lag}%`, scrub: 0.6 };
           gsap.fromTo(
             el,
-            { y: 60, autoAlpha: 0 },
-            {
-              y: 0,
-              autoAlpha: 1,
-              ease: "power2.out",
-              scrollTrigger: { trigger: el, start: "top 92%", end: "top 62%", scrub: 0.6 },
-            },
+            { clipPath: "inset(14% 16% 0% 16%)" },
+            { clipPath: "inset(0% 0% 0% 0%)", ease: "power2.out", scrollTrigger: st },
           );
+          gsap.fromTo(el.querySelector("[data-clip-img]"), { scale: 1.18 }, { scale: 1, ease: "power2.out", scrollTrigger: st });
         });
+
+        // The process button eases up after its image.
+        gsap.fromTo(
+          q("[data-fade-up]"),
+          { y: 24, autoAlpha: 0 },
+          {
+            y: 0,
+            autoAlpha: 1,
+            ease: "power2.out",
+            scrollTrigger: { trigger: q("[data-fade-up]")[0], start: "top 92%", end: "top 75%", scrub: 0.6 },
+          },
+        );
       });
     },
     { scope: root },
@@ -100,59 +136,82 @@ export function ProcessStory() {
       {/* Grid: sticky bodice on the left, scrolling story on the right */}
       <div className="mt-[70px] grid grid-cols-1 gap-2 md:grid-cols-4">
         <div className="md:col-span-2">
-          <figure className="relative m-0 aspect-[4/5] overflow-hidden md:sticky md:top-[10px] md:aspect-auto md:h-[calc(100vh-60px)]">
+          <figure
+            data-clip
+            data-clip-lag={0}
+            className="relative m-0 aspect-[4/5] overflow-hidden md:sticky md:top-[10px] md:aspect-auto md:h-[calc(100vh-60px)]"
+          >
             <Image
               src={IMG.bodice.src}
               alt={IMG.bodice.alt}
               fill
               sizes="(min-width: 768px) 50vw, 100vw"
               unoptimized
+              data-clip-img
               className="object-cover"
             />
           </figure>
         </div>
 
         <div className="md:col-span-2">
+          {/* Reveal order across the first row: bodice, then these two, each a beat later */}
           <div className="grid grid-cols-2 gap-2">
-            <Tile img={IMG.back} />
-            <Tile img={IMG.drape} />
+            <Tile img={IMG.back} lag={4} />
+            <Tile img={IMG.drape} lag={8} />
           </div>
 
-          <div data-reveal className="mx-auto max-w-[440px] px-4 py-[22vh] text-center">
-            <h3 className="m-0 font-sans text-[21px] font-medium leading-[1.12] tracking-[-0.01em]">
+          <div className="mx-auto max-w-[440px] px-4 py-[22vh] text-center">
+            <h3 data-split className="m-0 font-sans text-[21px] font-medium leading-[1.12] tracking-[-0.01em]">
               Worn once.
               <br />
               Never meant to disappear.
             </h3>
-            <p className="mb-0 mt-[22px] font-serif text-[13.5px] leading-[1.52] text-prose">
-              You wear your gown once, then it&apos;s tucked away for years. It deserves to be appreciated forever. Vero
-              transforms your dress into a lasting sculpture, created through a balance of advanced technology and hand
-              craftsmanship so that we can preserve every detail. Every commission begins with a private consultation.
-              Together, we&apos;ll discuss your commission, coordinate the collection of your gown, and personally guide
-              you through every step of the Vero experience.
+            <p data-split className="mb-0 mt-[22px] font-serif text-[13.5px] italic leading-[1.52] text-prose">
+              You wear your gown once, then it&apos;s tucked away
+              <br />
+              for years. It deserves to be appreciated forever.
+            </p>
+            <p data-split className="mb-0 mt-[2px] font-serif text-[13.5px] leading-[1.52] text-prose">
+              Vero transforms your dress into a lasting sculpture, created through a balance of advanced technology and
+              hand craftsmanship so that we can preserve every detail. Every commission begins with a private
+              consultation. Together, we&apos;ll discuss your commission, coordinate the collection of your gown, and
+              personally guide you through every step of the Vero experience.
             </p>
           </div>
 
-          <div data-reveal className="flex flex-col items-center gap-6 pb-[22vh]">
-            <figure className="relative m-0 aspect-[8/11] w-[clamp(96px,9.6vw,150px)] overflow-hidden">
-              <Image src={IMG.plinth.src} alt={IMG.plinth.alt} fill sizes="150px" unoptimized className="object-cover" />
+          <div className="flex flex-col items-center gap-6 pb-[22vh]">
+            <figure data-clip data-clip-lag={0} className="relative m-0 aspect-[8/11] w-[clamp(96px,9.6vw,150px)] overflow-hidden">
+              <Image
+                src={IMG.plinth.src}
+                alt={IMG.plinth.alt}
+                fill
+                sizes="150px"
+                unoptimized
+                data-clip-img
+                className="object-cover"
+              />
             </figure>
-            <NavButton href="#process" variant="solid" className="min-h-[45px] !px-[40px] !text-[12px]">
-              <em>Discover</em> our process
-            </NavButton>
+            <div data-fade-up>
+              <NavButton href="#process" variant="solid" className="min-h-[45px] !px-[40px] !text-[12px]">
+                <em>Discover</em> our process
+              </NavButton>
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-2">
             <Tile img={IMG.bride} />
-            <Tile img={IMG.strapless} />
+            <Tile img={IMG.strapless} lag={6} />
           </div>
 
-          <figure data-reveal className="mx-auto my-0 max-w-[460px] px-4 pb-[16vh] pt-[24vh] text-center">
-            <blockquote className="m-0 font-serif text-[clamp(20px,1.6vw,26px)] italic leading-[1.3]">
+          <figure className="mx-auto my-0 max-w-[460px] px-4 pb-[16vh] pt-[24vh] text-center">
+            <blockquote data-split className="m-0 font-serif text-[clamp(20px,1.6vw,26px)] italic leading-[1.3]">
               “Technology often pulls us away from what&apos;s real. Vero does the opposite — we use it to bring memory
               back to physical form.”
             </blockquote>
-            <figcaption className="mt-6 font-serif text-[12px] uppercase leading-[1.6] tracking-[0.02em] [&_em]:normal-case">
+            <figcaption
+              data-split
+              className="mt-6 font-serif text-[12px] uppercase leading-[1.6] tracking-[0.02em] [&_em]:normal-case"
+            >
               Madilyn Ontiveros Plumlee
               <br />
               <em>founder of</em> VERO

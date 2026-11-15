@@ -11,7 +11,6 @@ export const MENU_LINKS = [
   { label: "Home", href: "#top" },
   { label: "About", href: "#about" },
   { label: "Process", href: "#process" },
-  { label: "Gallery", href: "#gallery" },
   { label: "Commission", href: "#commission" },
 ] as const;
 
@@ -126,11 +125,6 @@ export function MenuOverlay({ open, onClose, activeHref = "#top" }: MenuOverlayP
               <li>
                 <a href="#process" onClick={(e) => go(e, "#process")} className="text-inherit no-underline hover:text-ink">
                   Our Process
-                </a>
-              </li>
-              <li>
-                <a href="#gallery" onClick={(e) => go(e, "#gallery")} className="text-inherit no-underline hover:text-ink">
-                  Explore the Gallery
                 </a>
               </li>
               <li>

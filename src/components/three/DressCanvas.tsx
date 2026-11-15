@@ -10,6 +10,12 @@ const MODEL_URL = "/models/ivory-cascade.glb";
 
 /** Share of the canvas height the dress fills (head to hem). */
 const FILL = 0.84;
+/**
+ * Share of the canvas width the dress may span. On narrow (portrait) screens the
+ * width is the limit, so let the widest point of the skirt run slightly past the
+ * edges rather than leave large empty bands above and below the dress.
+ */
+const WIDTH_FILL = { landscape: 0.84, portrait: 1.12 };
 /** Nudge down (share of canvas height) so the top clears the fixed header and logo. */
 const DROP = 0.065;
 
@@ -54,7 +60,8 @@ function Dress({ pose }: DressCanvasProps) {
   }, [scene]);
 
   // Fit the whole dress to the canvas height, unless the screen is too narrow for that.
-  const fit = Math.min((viewport.height * FILL) / bounds.height, (viewport.width * FILL) / bounds.width);
+  const widthFill = viewport.width < viewport.height ? WIDTH_FILL.portrait : WIDTH_FILL.landscape;
+  const fit = Math.min((viewport.height * FILL) / bounds.height, (viewport.width * widthFill) / bounds.width);
 
   // Matte ceramic look: the scan ships with metalness 1, which renders dark without an HDR.
   useLayoutEffect(() => {
