@@ -31,10 +31,6 @@
   --shadow-soft: 0 10px 30px rgba(20, 20, 19, 0.06);
 }
 
-html {
-  scroll-behavior: smooth;
-}
-
 /* Left-to-right soft-edged wipe reveal. Toggle with data-on="true". */
 .wipe {
   display: inline-block;
@@ -121,6 +117,7 @@ html {
 
 body {
   margin: 0;
+  overflow-x: clip;
   background: var(--color-ivory);
   color: var(--color-ink);
   font-family: var(--font-sans);

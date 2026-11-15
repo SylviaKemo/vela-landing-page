@@ -4,6 +4,7 @@ import { useEffect, useRef, type CSSProperties, type MouseEvent } from "react";
 import { NavButton } from "@/components/ui/Button";
 import { Dot, RollText } from "@/components/ui/RollText";
 import { lockScroll } from "@/lib/scrollLock";
+import { scrollToTarget } from "@/lib/smoothScroll";
 
 /** Menu entries map to this page's own sections. */
 export const MENU_LINKS = [
@@ -44,7 +45,7 @@ export function MenuOverlay({ open, onClose, activeHref = "#top" }: MenuOverlayP
     onClose();
     // Scroll once the effect cleanup has released the scroll lock.
     requestAnimationFrame(() => {
-      document.querySelector(href)?.scrollIntoView({ behavior: "smooth" });
+      scrollToTarget(href);
       history.replaceState(null, "", href);
     });
   };
@@ -58,6 +59,7 @@ export function MenuOverlay({ open, onClose, activeHref = "#top" }: MenuOverlayP
       aria-hidden={!open}
       inert={!open}
       data-open={open}
+      data-lenis-prevent
       className="menu-panel fixed inset-0 z-[80] overflow-y-auto bg-ivory text-ink"
     >
       {/* Soft warm glow, top-right */}

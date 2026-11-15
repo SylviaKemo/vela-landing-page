@@ -1,8 +1,11 @@
+import { SmoothScroll } from "@/components/SmoothScroll";
 import { IntroProvider } from "@/components/intro/IntroContext";
 import { Preloader } from "@/components/intro/Preloader";
 import { Header } from "@/components/sections/Header";
+import { DressStory } from "@/components/sections/DressStory";
 import { Hero } from "@/components/sections/Hero";
-import { Essence, Intro, Manifesto } from "@/components/sections/Intro";
+import { HeroTitle } from "@/components/sections/HeroTitle";
+import { Essence } from "@/components/sections/Intro";
 import { ProcessGrid, Stages, WornOnce } from "@/components/sections/Process";
 import {
   ClosingCta,
@@ -16,13 +19,14 @@ import {
 export default function Home() {
   return (
     <IntroProvider>
+      <SmoothScroll />
       <div className="relative">
         <Preloader />
         <Header />
+        <HeroTitle />
         <main>
           <Hero />
-          <Manifesto />
-          <Intro />
+          <DressStory />
           <Essence />
           <Stages />
           <ProcessGrid />
