@@ -1,3 +1,5 @@
+import { IntroProvider } from "@/components/intro/IntroContext";
+import { Preloader } from "@/components/intro/Preloader";
 import { Header } from "@/components/sections/Header";
 import { Hero } from "@/components/sections/Hero";
 import { Essence, Intro, Manifesto } from "@/components/sections/Intro";
@@ -13,23 +15,26 @@ import {
 
 export default function Home() {
   return (
-    <div className="relative">
-      <Header />
-      <main>
-        <Hero />
-        <Manifesto />
-        <Intro />
-        <Essence />
-        <Stages />
-        <ProcessGrid />
-        <WornOnce />
-        <FounderQuote />
-        <Masterpiece />
-        <Gallery />
-        <MedallionQuote />
-        <ClosingCta />
-      </main>
-      <Footer />
-    </div>
+    <IntroProvider>
+      <div className="relative">
+        <Preloader />
+        <Header />
+        <main>
+          <Hero />
+          <Manifesto />
+          <Intro />
+          <Essence />
+          <Stages />
+          <ProcessGrid />
+          <WornOnce />
+          <FounderQuote />
+          <Masterpiece />
+          <Gallery />
+          <MedallionQuote />
+          <ClosingCta />
+        </main>
+        <Footer />
+      </div>
+    </IntroProvider>
   );
 }

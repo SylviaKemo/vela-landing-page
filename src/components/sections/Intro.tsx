@@ -10,7 +10,7 @@ const specs = [
 
 export function Manifesto() {
   return (
-    <section className="py-24 text-center md:py-[140px]">
+    <section id="manifesto" className="py-24 text-center md:py-[140px]">
       <Container>
         <DisplayHeading>
           Your most <em>important</em> dress
@@ -28,7 +28,7 @@ export function Manifesto() {
 
 export function Intro() {
   return (
-    <section className="pb-24 pt-10 text-center md:pb-[140px]">
+    <section id="about" className="pb-24 pt-10 text-center md:pb-[140px]">
       <Container className="max-w-[780px]">
         <h3 className="m-0 font-sans text-[clamp(28px,3.4vw,44px)] font-semibold leading-[1.15] tracking-[-0.01em]">
           Vero is a luxury fine-art studio that transforms your wedding dress into a timeless sculpture.
