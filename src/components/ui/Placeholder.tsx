@@ -23,7 +23,7 @@ export function Placeholder({ label, tone = "light", className = "", style }: Pl
       role="img"
       aria-label={label}
       style={style}
-      className={`relative box-border flex items-center justify-center overflow-hidden border border-dashed text-center ${toneClasses[tone]} ${className}`}
+      className={`box-border flex items-center justify-center overflow-hidden border border-dashed text-center ${toneClasses[tone]} ${className}`}
     >
       <span className="max-w-[82%] p-4 font-sans text-xs font-semibold uppercase leading-normal tracking-[0.08em]">
         {label}
