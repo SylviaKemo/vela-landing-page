@@ -9,9 +9,9 @@ import { useRef } from "react";
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 const PANELS = [
-  { src: "/images/2.avif", alt: "Bride in a strapless gown standing on a plinth against a warm amber backdrop" },
+  { src: "/images/essence-dress.webp", alt: "Bride in a strapless satin gown with a sculpted bow, standing on a plinth against a warm amber backdrop" },
   { src: "/images/5.avif", alt: "White resin sculpture of the gown on a stone plinth against a grey backdrop" },
-  { src: "/images/6.avif", alt: "Bride seen from behind beside the miniature sculpture of her dress" },
+  { src: "/images/essence-sculpture.webp", alt: "Bride seen from behind in a satin gown with a sculpted bow, beside the miniature sculpture of her dress on a plinth" },
 ];
 
 const PHRASES = [

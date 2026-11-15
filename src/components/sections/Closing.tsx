@@ -2,28 +2,6 @@ import { CtaButton } from "@/components/ui/Button";
 import { Placeholder, type PlaceholderTone } from "@/components/ui/Placeholder";
 import { Caption, Container, DisplayHeading, Eyebrow } from "@/components/ui/Typography";
 
-export function FounderQuote() {
-  return (
-    <section className="py-24 text-center md:py-[120px]">
-      <Container className="max-w-[820px]">
-        <figure className="m-0">
-          <blockquote className="m-0 font-serif text-[clamp(32px,3.6vw,48px)] italic leading-[1.25]">
-            “Technology often pulls us away from what&apos;s real. Vero does the opposite — we use it to bring memory
-            back to physical form.”
-          </blockquote>
-          <figcaption>
-            <Caption className="mb-0 mt-9 leading-[1.8]">
-              Madilyn Ontiveros Plumlee
-              <br />
-              <span className="font-serif text-base normal-case italic tracking-normal">founder of</span> VERO
-            </Caption>
-          </figcaption>
-        </figure>
-      </Container>
-    </section>
-  );
-}
-
 export function Masterpiece() {
   return (
     <section className="py-24 text-center md:py-[140px]">
