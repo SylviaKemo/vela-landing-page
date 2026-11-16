@@ -81,7 +81,7 @@ function Turntable({ pose, children }: { pose: RefObject<DressPose>; children: R
     const g = group.current;
     const p = pose.current;
     if (!g || !p) return;
-    g.rotation.y = MathUtils.damp(g.rotation.y, p.rotY, 8, dt);
+    g.rotation.y = MathUtils.damp(g.rotation.y, p.rotY + p.userY, 8, dt);
   });
   return (
     <group ref={group} rotation={[0, INITIAL_POSE.rotY, 0]}>

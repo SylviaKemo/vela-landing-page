@@ -59,6 +59,52 @@ export function DressStory() {
     return () => io.disconnect();
   }, []);
 
+  // Turn the dress by hand: drag (mouse), swipe sideways (touch) or scroll sideways
+  // (trackpad / tilt wheel). Vertical scrolling still moves the page as usual.
+  useEffect(() => {
+    const el = frame.current;
+    if (!el) return;
+    // One full turn per ~1.2 frame widths of drag.
+    const perPx = () => (Math.PI * 2) / (el.clientWidth * 1.2);
+    let lastX: number | null = null;
+
+    const onDown = (e: PointerEvent) => {
+      if ((e.target as Element).closest("button, a")) return;
+      if (e.pointerType === "mouse" && e.button !== 0) return;
+      lastX = e.clientX;
+      el.dataset.dragging = "true";
+      if (e.pointerType === "mouse") el.setPointerCapture(e.pointerId);
+    };
+    const onMove = (e: PointerEvent) => {
+      if (lastX === null) return;
+      pose.current.userY += (e.clientX - lastX) * perPx();
+      lastX = e.clientX;
+    };
+    const onUp = () => {
+      lastX = null;
+      delete el.dataset.dragging;
+    };
+    const onWheel = (e: WheelEvent) => {
+      if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return; // mostly vertical: let the page scroll
+      e.preventDefault(); // also stops the browser's swipe-to-go-back
+      e.stopPropagation(); // keep Lenis from scrolling the page on the gesture's small vertical part
+      pose.current.userY -= e.deltaX * perPx();
+    };
+
+    el.addEventListener("pointerdown", onDown);
+    el.addEventListener("pointermove", onMove);
+    el.addEventListener("pointerup", onUp);
+    el.addEventListener("pointercancel", onUp);
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => {
+      el.removeEventListener("pointerdown", onDown);
+      el.removeEventListener("pointermove", onMove);
+      el.removeEventListener("pointerup", onUp);
+      el.removeEventListener("pointercancel", onUp);
+      el.removeEventListener("wheel", onWheel);
+    };
+  }, []);
+
   // Still image shown if 3D is unavailable or the GPU drops the WebGL context.
   const fallback = (
     <Image src={DRESS_FALLBACK.src} alt={DRESS_FALLBACK.alt} fill sizes="100vw" unoptimized className="object-cover" />
@@ -137,8 +183,16 @@ export function DressStory() {
         </h2>
       </div>
 
-      <div ref={frame} data-pin className="relative h-screen min-h-[560px] overflow-hidden">
-        <div role="img" aria-label="3D model of a wedding dress sculpture, turning as you scroll" className="absolute inset-0">
+      <div
+        ref={frame}
+        data-pin
+        className="relative h-screen min-h-[560px] cursor-grab touch-pan-y select-none overflow-hidden overscroll-x-none data-[dragging=true]:cursor-grabbing"
+      >
+        <div
+          role="img"
+          aria-label="3D model of a wedding dress sculpture. It turns as you scroll; drag or swipe sideways to turn it yourself."
+          className="absolute inset-0"
+        >
           {threeFailed ? (
             fallback
           ) : (
@@ -155,6 +209,10 @@ export function DressStory() {
         {!threeFailed && (
           <div className="absolute inset-x-0 bottom-[3vh] flex flex-col items-center gap-3 md:inset-x-auto md:bottom-auto md:right-[5vw] md:top-1/2 md:-translate-y-1/2 md:items-end">
 
+            <p aria-hidden="true" className="m-0 font-serif text-[12px] italic text-ink/60 md:mb-2">
+              <span className="md:hidden">Swipe sideways to turn</span>
+              <span className="hidden md:inline">Drag to turn</span>
+            </p>
             <div role="radiogroup" aria-label="Dress style" className="mb-1 flex gap-2 md:mb-4">
               {DRESS_MODELS.map((m) => {
                 const selected = m.url === model.url;
