@@ -23,9 +23,7 @@ const DRESS_FALLBACK = {
 /** Dress models the visitor can switch between. */
 const DRESS_MODELS = [
   { url: "/models/ivory-cascade.glb", name: "Cascade" },
-  { url: "/models/mermaid.glb", name: "Mermaid" },
-  { url: "/models/couture.glb", name: "Couture" },
-];
+  { url: "/models/mermaid.glb", name: "Mermaid" },];
 const MODEL_URLS = DRESS_MODELS.map((m) => m.url);
 
 /** Colours the visitor can switch the dress between. */
