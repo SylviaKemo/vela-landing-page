@@ -4,14 +4,38 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import dynamic from "next/dynamic";
-import { useEffect, useRef } from "react";
+import Image from "next/image";
+import { useEffect, useRef, useState } from "react";
 import { useIntro } from "@/components/intro/IntroContext";
 import { INITIAL_POSE, TURN_START, type DressPose } from "@/components/three/dressPose";
+import { WebGLBoundary } from "@/components/three/WebGLBoundary";
 import { NavButton } from "@/components/ui/Button";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 const DressCanvas = dynamic(() => import("@/components/three/DressCanvas"), { ssr: false });
+
+const DRESS_FALLBACK = {
+  src: "/images/5.avif",
+  alt: "White resin sculpture of the gown on a stone plinth against a grey backdrop",
+};
+
+/** Dress models the visitor can switch between. */
+const DRESS_MODELS = [
+  { url: "/models/ivory-cascade.glb", name: "Cascade" },
+  { url: "/models/mermaid.glb", name: "Mermaid" },
+  { url: "/models/couture.glb", name: "Couture" },
+];
+const MODEL_URLS = DRESS_MODELS.map((m) => m.url);
+
+/** Colours the visitor can switch the dress between. */
+const DRESS_COLORS = [
+  { hex: "#B5A693", name: "Taupe" },
+  { hex: "#D8B8AD", name: "Blush" },
+  { hex: "#C5A875", name: "Gold" },
+  { hex: "#E5DED0", name: "Ivory" },
+  { hex: "#DCC8A9", name: "Champagne" },
+];
 
 /**
  * The 3D dress, full screen height. While the section is pinned the dress makes
@@ -21,7 +45,26 @@ const DressCanvas = dynamic(() => import("@/components/three/DressCanvas"), { ss
 export function DressStory() {
   const root = useRef<HTMLElement>(null);
   const pose = useRef<DressPose>({ ...INITIAL_POSE });
+  const frame = useRef<HTMLDivElement>(null);
+  const [onScreen, setOnScreen] = useState(false);
+  const [threeFailed, setThreeFailed] = useState(false);
+  const [color, setColor] = useState(DRESS_COLORS[0]);
+  const [model, setModel] = useState(DRESS_MODELS[0]);
   const { stage } = useIntro();
+
+  // Only render 3D frames while the dress frame is on (or about to come on) screen.
+  useEffect(() => {
+    const el = frame.current;
+    if (!el) return;
+    const io = new IntersectionObserver(([entry]) => setOnScreen(entry.isIntersecting), { rootMargin: "50% 0px" });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  // Still image shown if 3D is unavailable or the GPU drops the WebGL context.
+  const fallback = (
+    <Image src={DRESS_FALLBACK.src} alt={DRESS_FALLBACK.alt} fill sizes="100vw" unoptimized className="object-cover" />
+  );
 
   // Pins are measured while the intro holds the scroll lock (no scrollbar); re-measure once it lifts.
   useEffect(() => {
@@ -96,10 +139,67 @@ export function DressStory() {
         </h2>
       </div>
 
-      <div data-pin className="relative h-screen min-h-[560px] overflow-hidden">
+      <div ref={frame} data-pin className="relative h-screen min-h-[560px] overflow-hidden">
         <div role="img" aria-label="3D model of a wedding dress sculpture, turning as you scroll" className="absolute inset-0">
-          <DressCanvas pose={pose} />
+          {threeFailed ? (
+            fallback
+          ) : (
+            <WebGLBoundary fallback={fallback}>
+              <DressCanvas
+                pose={pose}
+                url={model.url}
+                urls={MODEL_URLS}
+                color={color.hex} active={onScreen} onContextLost={() => setThreeFailed(true)} />
+            </WebGLBoundary>
+          )}
         </div>
+
+        {!threeFailed && (
+          <div className="absolute inset-x-0 bottom-[3vh] flex flex-col items-center gap-3 md:inset-x-auto md:bottom-auto md:right-[5vw] md:top-1/2 md:-translate-y-1/2 md:items-end">
+
+            <div role="radiogroup" aria-label="Dress style" className="mb-1 flex gap-2 md:mb-4">
+              {DRESS_MODELS.map((m) => {
+                const selected = m.url === model.url;
+                return (
+                  <button
+                    key={m.url}
+                    type="button"
+                    role="radio"
+                    aria-checked={selected}
+                    onClick={() => setModel(m)}
+                    className={`min-h-[32px] cursor-pointer rounded-full border px-4 font-serif text-[12px] uppercase tracking-[0.04em] transition-colors duration-300 ${
+                      selected ? "border-ink bg-ink text-ivory" : "border-ink/20 bg-ivory/70 text-ink hover:border-ink/60"
+                    }`}
+                  >
+                    {m.name}
+                  </button>
+                );
+              })}
+            </div>
+            <p className="m-0 font-serif text-[12px] uppercase tracking-[0.04em] text-ink" aria-live="polite">
+              <em className="normal-case">Colour</em> · {color.name}
+            </p>
+            <div role="radiogroup" aria-label="Dress colour" className="flex gap-3 md:flex-col md:gap-[14px]">
+              {DRESS_COLORS.map((c) => {
+                const selected = c.hex === color.hex;
+                return (
+                  <button
+                    key={c.hex}
+                    type="button"
+                    role="radio"
+                    aria-checked={selected}
+                    aria-label={c.name}
+                    onClick={() => setColor(c)}
+                    className={`size-[26px] cursor-pointer rounded-full border border-ink/15 outline-offset-4 transition-[box-shadow,transform] duration-300 hover:scale-110 ${
+                      selected ? "shadow-[0_0_0_2px_var(--color-ivory),0_0_0_3px_var(--color-ink)]" : ""
+                    }`}
+                    style={{ backgroundColor: c.hex }}
+                  />
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Studio intro. Sizes and gaps measured from the reference (1898px-wide window). */}
