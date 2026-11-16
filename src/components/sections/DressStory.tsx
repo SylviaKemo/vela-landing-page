@@ -28,6 +28,7 @@ const MODEL_URLS = DRESS_MODELS.map((m) => m.url);
 
 /** Colours the visitor can switch the dress between. */
 const DRESS_COLORS = [
+  { hex: "#FFFFFF", name: "White" },
   { hex: "#B5A693", name: "Taupe" },
   { hex: "#D8B8AD", name: "Blush" },
   { hex: "#C5A875", name: "Gold" },
@@ -175,7 +176,7 @@ export function DressStory() {
             <span data-headline-line className="inline-block">
               <span
                 aria-hidden="true"
-                className="mr-[0.16em] inline-block size-[0.11em] rotate-45 bg-current align-[0.62em]"
+                className="mr-[0.3em] inline-block size-[0.13em] rotate-45 bg-current align-[0.26em]"
               />
               <em>important</em> dress
             </span>
