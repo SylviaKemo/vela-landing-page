@@ -32,7 +32,7 @@ export function Footer() {
 
   return (
     // id="commission": the header's "Start your Commission" buttons scroll here.
-    <footer id="commission" className="bg-ivory px-8 pb-6 pt-[16vh] text-ink">
+    <footer id="commission" className="bg-ivory px-8 pb-6 pt-[7vh] text-ink">
       <div ref={wordmark} aria-hidden="true" className="select-none overflow-hidden">
         <div className="flex justify-center font-serif text-[calc((100vw-64px)/2.606)] font-medium leading-[0.82]">
           {LETTERS.map((letter, i) => (

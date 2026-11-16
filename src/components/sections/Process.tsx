@@ -110,7 +110,7 @@ export function ProcessStory() {
   );
 
   return (
-    <section ref={root} id="worn-once" aria-labelledby="process-title" className="bg-ivory px-[29px] pb-[18vh] pt-24">
+    <section ref={root} id="worn-once" aria-labelledby="process-title" className="bg-ivory px-[29px] pb-[6vh] pt-16 md:pt-20">
       {/* Heading */}
       <div data-process-heading className="text-center">
         <p className="mb-[18px] mt-0 font-serif text-[12px] uppercase tracking-[0.02em] [&_em]:normal-case">
@@ -134,7 +134,7 @@ export function ProcessStory() {
       </div>
 
       {/* Grid: sticky bodice on the left, scrolling story on the right */}
-      <div className="mt-[70px] grid grid-cols-1 gap-2 md:grid-cols-4">
+      <div className="mt-10 grid grid-cols-1 gap-2 md:grid-cols-4">
         <div className="md:col-span-2">
           <figure
             data-clip
@@ -160,7 +160,7 @@ export function ProcessStory() {
             <Tile img={IMG.drape} lag={8} />
           </div>
 
-          <div className="mx-auto max-w-[440px] px-4 py-[22vh] text-center">
+          <div className="mx-auto max-w-[440px] px-4 py-14 text-center md:py-[11vh]">
             <h3 data-split className="m-0 font-sans text-[21px] font-medium leading-[1.12] tracking-[-0.01em]">
               Worn once.
               <br />
@@ -179,7 +179,7 @@ export function ProcessStory() {
             </p>
           </div>
 
-          <div className="flex flex-col items-center gap-6 pb-[22vh]">
+          <div className="flex flex-col items-center gap-6 pb-14 md:pb-[11vh]">
             <figure data-clip data-clip-lag={0} className="relative m-0 aspect-[8/11] w-[clamp(96px,9.6vw,150px)] overflow-hidden">
               <Image
                 src={IMG.plinth.src}
@@ -203,7 +203,7 @@ export function ProcessStory() {
             <Tile img={IMG.strapless} lag={6} />
           </div>
 
-          <figure className="mx-auto my-0 max-w-[460px] px-4 pb-[16vh] pt-[24vh] text-center">
+          <figure className="mx-auto my-0 max-w-[460px] px-4 pb-6 pt-14 text-center md:pt-[12vh]">
             <blockquote data-split className="m-0 font-serif text-[clamp(20px,1.6vw,26px)] italic leading-[1.3]">
               “Technology often pulls us away from what&apos;s real. Vero does the opposite — we use it to bring memory
               back to physical form.”

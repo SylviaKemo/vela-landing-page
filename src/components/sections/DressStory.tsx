@@ -162,7 +162,7 @@ export function DressStory() {
   return (
     <section ref={root} id="about" aria-labelledby="dress-story-headline" className="relative bg-ivory">
       {/* Section headline: sized from the reference (~112px at a 1349px-wide window), with room to breathe. */}
-      <div data-headline className="flex items-center justify-center px-4 pb-2 pt-16 text-center md:min-h-[55vh] md:pb-[4vh] md:pt-[10vh]">
+      <div data-headline className="flex items-center justify-center px-4 pb-2 pt-16 text-center md:min-h-[45vh] md:pb-[3vh] md:pt-[7vh]">
         <h2
           id="dress-story-headline"
           className="m-0 font-serif text-[clamp(44px,8.3vw,168px)] font-medium uppercase leading-[1.04] [&_em]:normal-case"
@@ -260,7 +260,7 @@ export function DressStory() {
       </div>
 
       {/* Studio intro. Sizes and gaps measured from the reference (1898px-wide window). */}
-      <div className="px-5 pb-14 pt-16 text-center md:pb-[130px]">
+      <div className="px-5 pb-12 pt-12 text-center md:pb-[64px] md:pt-14">
         <h2
           id="dress-story-intro"
           className="mx-auto my-0 max-w-[390px] font-sans text-[21px] font-medium leading-[1.12] tracking-[-0.01em]"
@@ -272,7 +272,7 @@ export function DressStory() {
           ceramic-based resin and are crafted with exceptional precision and detail, exactly as it was worn on your
           wedding day.
         </p>
-        <div className="mt-14">
+        <div className="mt-10">
           <NavButton href="#commission" variant="solid" className="min-h-[45px] !px-[48px] !text-[12px]">
             <em>Start your</em> Commission
           </NavButton>
