@@ -166,12 +166,12 @@ export function ProcessStory() {
               <br />
               Never meant to disappear.
             </h3>
-            <p data-split className="mb-0 mt-[22px] font-serif text-[13.5px] italic leading-[1.52] text-prose">
+            <p data-split className="mb-0 mt-[22px] font-sans text-[14px] italic leading-[1.65] text-prose">
               You wear your gown once, then it&apos;s tucked away
               <br />
               for years. It deserves to be appreciated forever.
             </p>
-            <p data-split className="mb-0 mt-[2px] font-serif text-[13.5px] leading-[1.52] text-prose">
+            <p data-split className="mb-0 mt-[2px] font-sans text-[14px] font-normal leading-[1.65] text-prose">
               Vero transforms your dress into a lasting sculpture, created through a balance of advanced technology and
               hand craftsmanship so that we can preserve every detail. Every commission begins with a private
               consultation. Together, we&apos;ll discuss your commission, coordinate the collection of your gown, and

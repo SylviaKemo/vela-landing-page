@@ -266,7 +266,7 @@ export function DressStory() {
         >
           Vero is a luxury fine-art studio that transforms your wedding dress into a timeless sculpture.
         </h2>
-        <p className="mx-auto mb-0 mt-[22px] max-w-[445px] font-serif text-[13.5px] leading-[1.52] text-prose">
+        <p className="mx-auto mb-0 mt-[22px] max-w-[445px] font-sans text-[14px] font-normal leading-[1.65] text-prose">
           Each Vero sculpture stands approximately 15 inches tall and weighs 5–10 pounds. Our sculptures are made of
           ceramic-based resin and are crafted with exceptional precision and detail, exactly as it was worn on your
           wedding day.
