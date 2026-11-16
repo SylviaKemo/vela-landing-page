@@ -3,19 +3,22 @@
 import { Environment, Lightformer, useGLTF } from "@react-three/drei";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Suspense, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
-import { Box3, Color, MathUtils, Vector3, type Group, type Mesh, type MeshStandardMaterial } from "three";
+import { Box3, Color, MathUtils, Matrix4, Vector3, type Group, type Mesh, type MeshStandardMaterial } from "three";
 import { INITIAL_POSE, type DressPose } from "./dressPose";
 
-/** Share of the canvas height the dress fills (head to hem). */
-const FILL = 0.84;
+const CAMERA_Z = 4.5;
+const FOV = 30;
+const TAN_HALF_FOV = Math.tan(MathUtils.degToRad(FOV / 2));
+
 /**
- * Share of the canvas width the dress may span. On narrow (portrait) screens the
- * width is the limit, so let the widest point of the skirt run slightly past the
- * edges rather than leave large empty bands above and below the dress.
+ * Space to keep clear around the dress, as shares of the canvas height (top,
+ * bottom) and of half its width (side = how far out the skirt may reach).
+ * Top clears the fixed header logo; on phones the bottom clears the pickers.
  */
-const WIDTH_FILL = { landscape: 0.84, portrait: 1.12 };
-/** Nudge down (share of canvas height) so the top clears the fixed header and logo. */
-const DROP = 0.065;
+const FRAME = {
+  landscape: { top: 0.11, bottom: 0.035, side: 0.8 },
+  portrait: { top: 0.1, bottom: 0.2, side: 1 },
+};
 
 type DressCanvasProps = {
   pose: RefObject<DressPose>;
@@ -45,7 +48,7 @@ export default function DressCanvas({ pose, url, urls, color, active, onContextL
       // 1.5x max: Retina screens would otherwise render 4x the pixels of a 1x screen.
       dpr={[1, 1.5]}
       frameloop={active ? "always" : "never"}
-      camera={{ fov: 30, position: [0, 0, 4.5], near: 0.1, far: 50 }}
+      camera={{ fov: FOV, position: [0, 0, CAMERA_Z], near: 0.1, far: 50 }}
       gl={{ alpha: true, antialias: true, powerPreference: "default" }}
       onCreated={({ gl }) => {
         gl.domElement.addEventListener("webglcontextlost", (e) => {
@@ -95,7 +98,7 @@ type DressModelProps = { url: string; color: string; onReady?: (url: string) => 
 function DressModel({ url, color, onReady }: DressModelProps) {
   const { scene } = useGLTF(url);
   const settle = useRef<Group>(null);
-  const viewport = useThree((s) => s.viewport);
+  const size = useThree((s) => s.size);
   const target = useMemo(() => new Color(color), [color]);
   const colorRef = useRef(target);
 
@@ -112,18 +115,49 @@ function DressModel({ url, color, onReady }: DressModelProps) {
     return list;
   }, [scene]);
 
-  // Model bounds: used to centre it and to fit it to the canvas height.
-  const bounds = useMemo(() => {
-    const box = new Box3().setFromObject(scene);
-    const size = box.getSize(new Vector3());
+  // Model shape, in the scene's own coordinates: its centre, height, and how far
+  // the skirt reaches from the vertical axis it turns on.
+  const shape = useMemo(() => {
+    scene.updateWorldMatrix(true, true);
+    const toLocal = new Matrix4().copy(scene.matrixWorld).invert();
+    const m = new Matrix4();
+    const v = new Vector3();
+    const box = new Box3();
+    const points: Vector3[] = [];
+    scene.traverse((obj) => {
+      const mesh = obj as Mesh;
+      if (!mesh.isMesh) return;
+      m.multiplyMatrices(toLocal, mesh.matrixWorld);
+      const pos = mesh.geometry.attributes.position;
+      // Every 4th vertex is plenty for the outline of a dense scan.
+      for (let i = 0; i < pos.count; i += 4) {
+        v.fromBufferAttribute(pos, i).applyMatrix4(m);
+        box.expandByPoint(v);
+        points.push(v.clone());
+      }
+    });
     const center = box.getCenter(new Vector3());
-    // It turns on its vertical axis, so the widest it ever gets is max(width, depth).
-    return { height: size.y, width: Math.max(size.x, size.z), center };
+    let radius = 0;
+    for (const p of points) radius = Math.max(radius, Math.hypot(p.x - center.x, p.z - center.z));
+    return { center, height: box.max.y - box.min.y, radius };
   }, [scene]);
 
-  // Fit the whole dress to the canvas height, unless the screen is too narrow for that.
-  const widthFill = viewport.width < viewport.height ? WIDTH_FILL.portrait : WIDTH_FILL.landscape;
-  const fit = Math.min((viewport.height * FILL) / bounds.height, (viewport.width * widthFill) / bounds.width);
+  // Fit the whole dress, head to hem, at every angle. With perspective, the parts of
+  // the hem turned towards the camera look bigger and lower, so the bottom edge is
+  // checked with the hem at its full radius in front; the sides likewise.
+  const aspect = size.width / Math.max(1, size.height);
+  const frame = aspect < 1 ? FRAME.portrait : FRAME.landscape;
+  const tTop = TAN_HALF_FOV * (1 - 2 * frame.top);
+  const tBottom = TAN_HALF_FOV * (1 - 2 * frame.bottom);
+  const tSide = TAN_HALF_FOV * aspect * frame.side;
+  const { height: h, radius: r } = shape;
+  const fitHeight = (CAMERA_Z * (tTop + tBottom)) / (h + tBottom * r);
+  const fitWidth = (tSide * CAMERA_Z) / (r * (1 + tSide));
+  const fit = Math.min(fitHeight, fitWidth);
+  // Vertical position: top flush with its line, or, if width is the limit, centred in the band.
+  const yTopAligned = tTop * CAMERA_Z - (fit * h) / 2;
+  const yBottomAligned = (fit * h) / 2 - tBottom * (CAMERA_Z - fit * r);
+  const y = (yTopAligned + yBottomAligned) / 2;
 
   // Matte ceramic look: the scans ship with metalness 1, which renders dark without an HDR.
   // A newly shown model starts in the current colour rather than fading in from white.
@@ -155,9 +189,9 @@ function DressModel({ url, color, onReady }: DressModelProps) {
   });
 
   return (
-    <group scale={fit} position={[0, -viewport.height * DROP, 0]}>
+    <group scale={fit} position={[0, y, 0]}>
       <group ref={settle} scale={0.94}>
-        <primitive object={scene} position={[-bounds.center.x, -bounds.center.y, -bounds.center.z]} />
+        <primitive object={scene} position={[-shape.center.x, -shape.center.y, -shape.center.z]} />
       </group>
     </group>
   );
