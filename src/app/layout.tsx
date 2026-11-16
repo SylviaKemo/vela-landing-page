@@ -17,9 +17,9 @@ const cormorant = Cormorant_Garamond({
 });
 
 export const metadata: Metadata = {
-  title: "VERO — Custom sculpture of your wedding dress",
+  title: "VELA — Custom sculpture of your wedding dress",
   description:
-    "Vero is a luxury fine-art studio that transforms your wedding dress into a timeless sculpture.",
+    "Vela is a luxury fine-art studio that transforms your wedding dress into a timeless sculpture.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

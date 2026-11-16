@@ -21,7 +21,7 @@ const PHRASES = [
 ];
 
 /**
- * "The essence of VERO". The section pins; the small image under the heading
+ * "The essence of VELA". The section pins; the small image under the heading
  * grows to fill the screen, then three full-screen images slide sideways while
  * "From DRESS, to DATA, to SCULPTURE." drifts along and lights up phrase by
  * phrase. Sizes measured from the reference: ~12px label, ~83px (4.37vw)
@@ -138,7 +138,7 @@ export function Essence() {
             data-essence-label
             className="mb-[18px] mt-0 font-serif text-[12px] uppercase tracking-[0.02em] text-ink [&_em]:normal-case"
           >
-            <em>the</em> Essence <em>of</em> VERO
+            <em>the</em> Essence <em>of</em> VELA
           </p>
           <h2
             id="essence-title"

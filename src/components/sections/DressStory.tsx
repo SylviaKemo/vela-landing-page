@@ -3,6 +3,7 @@
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { SplitText } from "gsap/SplitText";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
@@ -11,7 +12,7 @@ import { INITIAL_POSE, TURN_START, type DressPose } from "@/components/three/dre
 import { WebGLBoundary } from "@/components/three/WebGLBoundary";
 import { NavButton } from "@/components/ui/Button";
 
-gsap.registerPlugin(ScrollTrigger, useGSAP);
+gsap.registerPlugin(ScrollTrigger, SplitText, useGSAP);
 
 const DressCanvas = dynamic(() => import("@/components/three/DressCanvas"), { ssr: false });
 
@@ -149,6 +150,29 @@ export function DressStory() {
           ease: "none",
           scrollTrigger: { trigger: pin, start: "top top", end: "+=250%", pin: true, scrub: 0.6 },
         });
+
+        // Studio intro below the dress: each line rises out of its own mask as the
+        // block scrolls in, then the button eases up.
+        q("[data-intro-split]").forEach((el) => {
+          SplitText.create(el, {
+            type: "lines",
+            mask: "lines",
+            autoSplit: true,
+            onSplit: (self) =>
+              gsap.from(self.lines, {
+                yPercent: 110,
+                ease: "power3.out",
+                stagger: 0.12,
+                scrollTrigger: { trigger: el, start: "top 92%", end: "bottom 68%", scrub: 0.6 },
+              }),
+          });
+        });
+        const cta = q("[data-intro-cta]")[0];
+        gsap.fromTo(
+          cta,
+          { y: 24, autoAlpha: 0 },
+          { y: 0, autoAlpha: 1, ease: "power2.out", scrollTrigger: { trigger: cta, start: "top 96%", end: "top 80%", scrub: 0.6 } },
+        );
       });
 
       // Reduced motion: no pin, dress simply faces front.
@@ -263,16 +287,17 @@ export function DressStory() {
       <div className="px-5 pb-12 pt-12 text-center md:pb-[64px] md:pt-14">
         <h2
           id="dress-story-intro"
+          data-intro-split
           className="mx-auto my-0 max-w-[390px] font-sans text-[21px] font-medium leading-[1.12] tracking-[-0.01em]"
         >
-          Vero is a luxury fine-art studio that transforms your wedding dress into a timeless sculpture.
+          Vela is a luxury fine-art studio that transforms your wedding dress into a timeless sculpture.
         </h2>
-        <p className="mx-auto mb-0 mt-[22px] max-w-[445px] font-sans text-[14px] font-normal leading-[1.65] text-prose">
-          Each Vero sculpture stands approximately 15 inches tall and weighs 5–10 pounds. Our sculptures are made of
+        <p data-intro-split className="mx-auto mb-0 mt-[22px] max-w-[445px] font-sans text-[14px] font-normal leading-[1.65] text-prose">
+          Each Vela sculpture stands approximately 15 inches tall and weighs 5–10 pounds. Our sculptures are made of
           ceramic-based resin and are crafted with exceptional precision and detail, exactly as it was worn on your
           wedding day.
         </p>
-        <div className="mt-10">
+        <div data-intro-cta className="mt-10">
           <NavButton href="#commission" variant="solid" className="min-h-[45px] !px-[48px] !text-[12px]">
             <em>Start your</em> Commission
           </NavButton>

@@ -3,7 +3,7 @@
 import { useEffect, useRef, type CSSProperties } from "react";
 import { useIntro } from "@/components/intro/IntroContext";
 
-const LETTERS = "VERO".split("");
+const LETTERS = "VELA".split("");
 const clamp = (n: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, n));
 
 /** Logo size (px) and centre line (px from top) once docked in the header. */
@@ -24,7 +24,7 @@ function Letters({ revealed }: { revealed: boolean }) {
 }
 
 /**
- * The hero's "VERO" title. Fixed to the viewport: as the hero scrolls away it
+ * The hero's "VELA" title. Fixed to the viewport: as the hero scrolls away it
  * shrinks into the header logo. It is drawn twice (white and ink) and each copy
  * is clipped at the hero's bottom edge, so the half over the video stays white
  * and the half over the ivory page turns ink.
@@ -86,7 +86,7 @@ export function HeroTitle() {
       className="pointer-events-none fixed inset-x-0 top-0 z-[65] flex h-screen min-h-[560px] flex-col items-center justify-center pt-[6vh] text-center"
     >
       <div ref={mover} className="relative origin-center will-change-transform">
-        <h1 ref={white} aria-label="VERO" className={`${titleClass} text-paper`}>
+        <h1 ref={white} aria-label="VELA" className={`${titleClass} text-paper`}>
           <Letters revealed={revealed} />
         </h1>
         <div ref={ink} aria-hidden="true" className={`${titleClass} absolute inset-0 text-ink`} style={{ clipPath: "inset(100% 0 0 0)" }}>

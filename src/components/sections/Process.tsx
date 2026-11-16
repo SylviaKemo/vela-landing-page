@@ -172,10 +172,10 @@ export function ProcessStory() {
               for years. It deserves to be appreciated forever.
             </p>
             <p data-split className="mb-0 mt-[2px] font-sans text-[14px] font-normal leading-[1.65] text-prose">
-              Vero transforms your dress into a lasting sculpture, created through a balance of advanced technology and
+              Vela transforms your dress into a lasting sculpture, created through a balance of advanced technology and
               hand craftsmanship so that we can preserve every detail. Every commission begins with a private
               consultation. Together, we&apos;ll discuss your commission, coordinate the collection of your gown, and
-              personally guide you through every step of the Vero experience.
+              personally guide you through every step of the Vela experience.
             </p>
           </div>
 
@@ -205,7 +205,7 @@ export function ProcessStory() {
 
           <figure className="mx-auto my-0 max-w-[460px] px-4 pb-6 pt-14 text-center md:pt-[12vh]">
             <blockquote data-split className="m-0 font-serif text-[clamp(20px,1.6vw,26px)] italic leading-[1.3]">
-              “Technology often pulls us away from what&apos;s real. Vero does the opposite — we use it to bring memory
+              “Technology often pulls us away from what&apos;s real. Vela does the opposite — we use it to bring memory
               back to physical form.”
             </blockquote>
             <figcaption
@@ -214,7 +214,7 @@ export function ProcessStory() {
             >
               Madilyn Ontiveros Plumlee
               <br />
-              <em>founder of</em> VERO
+              <em>founder of</em> VELA
             </figcaption>
           </figure>
         </div>

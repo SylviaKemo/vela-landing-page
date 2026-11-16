@@ -5,7 +5,7 @@ import { INTRO_EXPAND_MS, useIntro } from "@/components/intro/IntroContext";
 
 const clamp01 = (n: number) => Math.min(1, Math.max(0, n));
 
-/** Full-bleed hero video. The VERO title lives in <HeroTitle> so it can become the sticky logo. */
+/** Full-bleed hero video. The VELA title lives in <HeroTitle> so it can become the sticky logo. */
 export function Hero() {
   const { stage, clipPath, videoRef } = useIntro();
   const revealed = stage === "done";

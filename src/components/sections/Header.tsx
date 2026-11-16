@@ -79,7 +79,7 @@ export function Header() {
         </button>
 
         <Link href="#top" className={`sr-only ${live}`}>
-          VERO home
+          VELA home
         </Link>
 
         <NavButton href="#commission" variant={variant} className={`max-sm:hidden ${live}`}>
